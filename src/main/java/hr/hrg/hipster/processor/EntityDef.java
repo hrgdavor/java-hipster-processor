@@ -11,6 +11,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 
 import hr.hrg.hipster.dao.*;
+import hr.hrg.hipster.sql.*;
 
 public class EntityDef {
 
@@ -34,22 +35,13 @@ public class EntityDef {
 	public final boolean genUpdate;
 	
 	public EntityDef(TypeElement clazz){
-		Element enclosingElement = clazz.getEnclosingElement();
-
 		isInterface = clazz.getKind().isInterface();
 		this.declaredType = (DeclaredType) clazz.asType();
 
-		String qName = clazz.getQualifiedName().toString();
-		int idx = qName.lastIndexOf('.');
-		simpleName = qName.substring(idx+1);
+		String[] entityNamesPrefix = HipsterSqlUtil.entityNamesPrefixArray(clazz);
+		this.packageName = entityNamesPrefix[0];
+		this.simpleName = entityNamesPrefix[0];
 		
-		if(enclosingElement instanceof PackageElement){
-			packageName = qName.substring(0, idx);
-		}else{
-			String packageName = qName.substring(0, idx)+"_";
-			this.packageName = packageName; 
-			
-		}
 		HipsterEntity hipsterEntity = clazz.getAnnotation(HipsterEntity.class);
 		
 		if(hipsterEntity != null && hipsterEntity.table() != null) {

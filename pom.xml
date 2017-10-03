@@ -22,6 +22,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>hr.hrg</groupId>
+			<artifactId>hipster-dao-change</artifactId>
+			<version>0.2.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>hr.hrg.javapoet</groupId>
 			<artifactId>javapoet-util</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
