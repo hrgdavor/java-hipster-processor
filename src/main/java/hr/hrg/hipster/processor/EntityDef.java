@@ -3,8 +3,7 @@ package hr.hrg.hipster.processor;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 
@@ -35,20 +34,30 @@ public class EntityDef {
 	public final boolean genUpdate;
 	
 	public EntityDef(TypeElement clazz){
-		String qName = clazz.getQualifiedName().toString();
+		Element enclosingElement = clazz.getEnclosingElement();
 
 		isInterface = clazz.getKind().isInterface();
 		this.declaredType = (DeclaredType) clazz.asType();
-		
-		int idx = qName.lastIndexOf('.');
-		packageName = qName.substring(0, idx);
-		simpleName = qName.substring(idx+1);
 
+		String qName = clazz.getQualifiedName().toString();
+		int idx = qName.lastIndexOf('.');
+		simpleName = qName.substring(idx+1);
+		
+		if(enclosingElement instanceof PackageElement){
+			packageName = qName.substring(0, idx);
+		}else{
+			String packageName = qName.substring(0, idx)+"_";
+			this.packageName = packageName; 
+			
+		}
 		HipsterEntity hipsterEntity = clazz.getAnnotation(HipsterEntity.class);
-		if(hipsterEntity != null && hipsterEntity.table() != null) 
+		
+		if(hipsterEntity != null && hipsterEntity.table() != null) {
 			this.tableName = hipsterEntity.table();
-		else 
+		} else {
 			this.tableName = simpleName.toLowerCase();
+		}
+
 		genMeta = hipsterEntity.genMeta();
 		genUpdate = hipsterEntity.genUpdate();
 		this.type = ClassName.get(clazz);

@@ -59,14 +59,14 @@ public class HipsterDaoProcessor extends AbstractProcessor{
 	}
 
 	private EntityDef generateClass(TypeElement clazz, ProcessingEnvironment processingEnv) {
-        String interfaceClassName = clazz.getQualifiedName().toString();
+		
    		boolean jackson = "true".equalsIgnoreCase(processingEnv.getOptions().get("hipster_proc_jackson"));
         boolean genBuilder = "true".equalsIgnoreCase(processingEnv.getOptions().get("hipster_proc_builder"));
         
 
         processingEnv.getMessager().printMessage(
                 Diagnostic.Kind.NOTE,
-                "annotated class: " + interfaceClassName);
+                "annotated class: " + clazz.getQualifiedName());
         
         
         EntityDef def = new EntityDef(clazz);
