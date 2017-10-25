@@ -3,10 +3,7 @@ package hr.hrg.hipster.processor;
 
 import static hr.hrg.javapoet.PoetUtil.*;
 
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
-
-import hr.hrg.hipster.dao.change.*;
+import com.squareup.javapoet.*;
 
 public class GenDelta {
 
@@ -14,7 +11,7 @@ public class GenDelta {
 
 		TypeSpec.Builder cp = classBuilder(PUBLIC(), def.typeDelta);
 		
-		cp.superclass(parametrized(EnumGetterUpdateDelta.class, def.typeImmutable, def.typeEnum));
+//		cp.superclass(parametrized(EnumGetterUpdateDelta.class, def.typeImmutable, def.typeEnum));
 		
 		MethodSpec.Builder constr = constructorBuilder(PUBLIC());
 		addParameter(constr, long.class, "changeSet");

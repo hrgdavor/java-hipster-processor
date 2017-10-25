@@ -4,9 +4,10 @@ import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static hr.hrg.javapoet.PoetUtil.*;
 
 import com.squareup.javapoet.*;
-import com.squareup.javapoet.TypeSpec.*;
+import com.squareup.javapoet.TypeSpec;
 
 import hr.hrg.hipster.dao.change.*;
+import hr.hrg.javapoet.*;
 
 public class GenUpdate {
 
@@ -18,7 +19,7 @@ public class GenUpdate {
 		this.genBuilder = genBuilder;
 	}
 
-	public Builder gen2(EntityDef def) {
+	public TypeSpec.Builder gen2(EntityDef def) {
 
 		TypeSpec.Builder cp = classBuilder(def.typeUpdate);
 		PUBLIC().to(cp);
@@ -31,18 +32,11 @@ public class GenUpdate {
 		}
 		
 		
-		cp.addSuperinterface(parametrized(IUpdate.class,def.type,def.typeEnum));
+		cp.addSuperinterface(parametrized(IUpdateDelta.class,def.typeEnum));
+		cp.addSuperinterface(parametrized(IUpdatable.class,def.typeEnum));
 
     	addField(cp,PROTECTED(), long.class, "_changeSet");
 
-    	TypeName returnType = parametrized(EnumArrayUpdateDelta.class,def.typeEnum);
-        MethodSpec.Builder getDelta = methodBuilder(PUBLIC(), parametrized(IUpdateDelta.class,def.typeEnum), "getDelta" );
-        getDelta.addAnnotation(Override.class);
-        getDelta.addCode("return new $T(_changeSet, getEntityValues(), $T.COLUMN_ARRAY);\n", returnType,def.typeEnum);			
-//        getDelta.addCode("return $T.delta(_changeSet,getEntityValues());\n", def.typeMeta);
-        cp.addMethod(getDelta.build());
-
-        
         int count = def.getProps().size();
         for(int i=0; i<count; i++) {
         	Property prop = def.getProps().get(i);
@@ -55,7 +49,7 @@ public class GenUpdate {
 			cp.addMethod(g.build());
 
 			MethodSpec.Builder bm = methodBuilder(PUBLIC(), def.typeUpdate, prop.name);
-			bm.addCode("this._changeSet |= "+(1L<<i)+";\n");
+			bm.addCode("this._changeSet |= "+(1L<<i)+"L;\n");
 			addSetterParameter(bm, prop.type, prop.name, null);
 			bm.addCode("return this;\n");
 			cp.addMethod(bm.build());
@@ -79,6 +73,25 @@ public class GenUpdate {
         setValue.addCode("this._changeSet |= (1L<<ordinal);\n");
         cp.addMethod(setValue.build());
 
+
+        // *********************  IUpdateDelta
+        
+        addMethod(cp, PUBLIC(), boolean.class, "isEmpty", method -> {
+        	method.addAnnotation(Override.class);
+        	method.addCode("return _changeSet == 0;\n");
+        });
+        
+        addMethod(cp, PUBLIC(), boolean.class, "isChanged", method -> {
+        	method.addAnnotation(Override.class);
+        	addParameter(method, def.typeEnum, "column");
+        	method.addCode("return (_changeSet & (1L << column.ordinal())) != 0;\n");
+        });
+        
+        addMethod(cp, PUBLIC(), boolean.class, "isChanged", method -> {
+			method.addAnnotation(Override.class);
+			addParameter(method, int.class, "ordinal");
+			method.addCode("return (_changeSet & (1L << ordinal)) != 0;\n");
+		});
         
         return cp;
 	}

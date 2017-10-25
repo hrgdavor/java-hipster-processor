@@ -80,7 +80,7 @@ public class HipsterDaoProcessor extends AbstractProcessor{
         		String typeNameStr = typeName.toString();
         		if(!name.startsWith("get") && (!name.startsWith("is") && (typeNameStr == "boolean" || typeNameStr == "java.lang.Boolean")) ) continue;
 
-        		Property prop = def.addProp(name, typeName,method.getReturnType(), method);
+        		Property prop = def.addProp(name, typeName, method.getReturnType(), method);
         		
         		prop.readOnly = method.getAnnotation(Id.class) != null;
         		if(prop.readOnly) {

@@ -33,20 +33,32 @@ public class GenEnum {
 		addBeanfieldReadonly(enumbuilder, TN_CLASS_Q, "_type", addOverride);
 		addBeanfieldReadonly(enumbuilder, boolean.class, "_primitive", addOverride);
 		addBeanfieldReadonly(enumbuilder, String.class, "_columnName", addOverride);
+		addBeanfieldReadonly(enumbuilder, String.class, "_tableName", addOverride);
+		addBeanfieldReadonly(enumbuilder, String.class, "_columnSql", addOverride);
 		addBeanfieldReadonly(enumbuilder, parametrized(ImmutableList.class, TN_CLASS_Q), "_typeParams", addOverride);
 		
 		for(Property prop: def.getProps()){
 			com.squareup.javapoet.CodeBlock.Builder codeBlock = CodeBlock.builder().add("$S",prop.columnName);
+			
+			// type or raw type
 			if(prop.type instanceof ParameterizedTypeName){				
 				ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName)prop.type;
 				codeBlock.add(",$T.class",parameterizedTypeName.rawType);
-				codeBlock.add(",$L",prop.isPrimitive());
+			}else{
+				codeBlock.add(",$T.class",prop.type);
+			}
+
+			// regular arguments
+			codeBlock.add(",$L",prop.isPrimitive());
+			codeBlock.add(",$S",prop.tableName);
+			codeBlock.add(",$S",prop.sql);
+
+			// type parameters if any
+			if(prop.type instanceof ParameterizedTypeName){				
+				ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName)prop.type;
 				for(TypeName ta: parameterizedTypeName.typeArguments){
 					codeBlock.add(",$T.class",ta);					
 				}
-			}else{
-				codeBlock.add(",$T.class",prop.type);
-				codeBlock.add(",$L",prop.isPrimitive());
 			}
 			
 			TypeSpec spec = anonymousClassBuilder(codeBlock.build()
@@ -60,7 +72,7 @@ public class GenEnum {
 		}
 				
 		addconstructor(enumbuilder, PRIVATE(), (method) -> {
-			addSetterParameter(enumbuilder,method,"_columnName","_type","_primitive");
+			addSetterParameter(enumbuilder,method,"_columnName","_type","_primitive","_tableName","_columnSql");
 			method.addParameter(ArrayTypeName.of(TN_CLASS_Q), "typeParams");
 			method.varargs();
 			method.addCode("this._typeParams = $T.safe(typeParams);\n",ImmutableList.class);
@@ -78,15 +90,10 @@ public class GenEnum {
 			method.addCode("return getColumnName();\n");
 		});
 
-		addMethod(enumbuilder, PUBLIC(), String.class, "getTableName", method->{
-			method.addAnnotation(Override.class);
-			method.addCode("return $S;\n", def.tableName);
-		});
-		
 		addMethod(enumbuilder, PUBLIC(), TN_CLASS_Q, "getEntity", method->{
 			method.addAnnotation(Override.class);
 			method.addCode("return $T.class;\n", def.type);
-		});
+		});	
 		
 		return enumbuilder;
 	}

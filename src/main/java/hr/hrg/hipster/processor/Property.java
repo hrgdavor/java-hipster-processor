@@ -5,6 +5,7 @@ import javax.persistence.Column;
 
 import com.squareup.javapoet.TypeName;
 
+import hr.hrg.hipster.sql.*;
 import hr.hrg.javapoet.PoetUtil;
 
 class Property {
@@ -15,11 +16,14 @@ class Property {
 	public String getterName;
 	public String setterName;
 	public String columnName;
+	public String tableName = "";
+	public String sql = "";
 	public TypeName type;
 	
-	public Property(String getter, TypeName type, ExecutableElement method){
+	public Property(String getter, TypeName type, ExecutableElement method, String tableName){
 		this.getterName = getter;
 		this.type = type;
+		this.tableName = tableName;
 		String name = null;
 		if(getter.startsWith("get")) {
 			name = getter.substring(3);
@@ -32,8 +36,19 @@ class Property {
 		this.fieldName = this.name;
 		
 		this.columnName = this.name;
-		Column column = method.getAnnotation(Column.class);
-		if(column != null && column.name() != null) this.columnName = column.name();
+		Column columnAnnotation = method.getAnnotation(Column.class);
+		if(columnAnnotation != null){
+			if(!columnAnnotation.name().isEmpty()) this.columnName = columnAnnotation.name();
+			if(!columnAnnotation.table().isEmpty()) tableName = columnAnnotation.table();
+		}
+		
+		HipsterColumn hipsterColumn = method.getAnnotation(HipsterColumn.class);
+		if(hipsterColumn != null){
+			if(!hipsterColumn.name().isEmpty()) this.columnName = columnAnnotation.name();
+			this.sql = hipsterColumn.sql();
+			if(!hipsterColumn.table().isEmpty()) this.tableName = columnAnnotation.table();
+		}			
+		
 	}
 
 	public boolean isPrimitive(){

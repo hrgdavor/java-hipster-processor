@@ -40,7 +40,7 @@ public class EntityDef {
 
 		String[] entityNamesPrefix = HipsterSqlUtil.entityNamesPrefixArray(clazz);
 		this.packageName = entityNamesPrefix[0];
-		this.simpleName = entityNamesPrefix[0];
+		this.simpleName = entityNamesPrefix[1];
 		
 		HipsterEntity hipsterEntity = clazz.getAnnotation(HipsterEntity.class);
 		
@@ -64,7 +64,7 @@ public class EntityDef {
 	}
 		
 	public Property addProp(String name, TypeName typeName, TypeMirror typeMirror, ExecutableElement method){
-		Property property = new Property(name, typeName, method);
+		Property property = new Property(name, typeName, method, this.tableName);
 		props.add(property);
 		return property;
 	}
