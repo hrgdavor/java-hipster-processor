@@ -47,7 +47,6 @@ public class GenBuilder {
 			code.add("\t\t"+prop.fieldName+(i == count-1 ? "":","));
         }
         
-        gen_getEntityValues(def, builder, jackson);
         genConstructors(def, builder, jackson);
         
         code.add("\t);");
@@ -60,30 +59,15 @@ public class GenBuilder {
 	}
 
 	public static void addInterfaces(EntityDef def, TypeSpec.Builder builder, boolean jackson) {
-		builder.addSuperinterface(IEntityValues.class);
 		builder.addSuperinterface(parametrized(IEnumSetter.class, def.typeEnum));
 		builder.addSuperinterface(parametrized(IEnumGetter.class, def.typeEnum));
 	}	
-	
-	public static void gen_getEntityValues(EntityDef def, TypeSpec.Builder cp, boolean jackson){
-		MethodSpec.Builder getEntityValues = methodBuilder(PUBLIC(), ArrayTypeName.of(Object.class), "getEntityValues" );
-		getEntityValues.addAnnotation(Override.class);
-        getEntityValues.addCode("return new Object[]{\n");
-
-        int count = def.getProps().size();
-        for(int i=0; i<count; i++) {
-        	Property property = def.getProps().get(i);
-			getEntityValues.addCode("\t\t"+property.fieldName+(i == count-1 ? "":",\n"));
-        }        
-        getEntityValues.addCode("\t};\n");
-        cp.addMethod(getEntityValues.build());
-	}
 	
 	public static void genConstructors(EntityDef def, TypeSpec.Builder builder, boolean jackson){
         // empty default constructor
 		addconstructor(builder, null);
 
-        GenImmutable.genConstructor(def,builder,jackson);
+        GenImmutable.genConstructor(def,builder,jackson, true);
 	}
 
 	

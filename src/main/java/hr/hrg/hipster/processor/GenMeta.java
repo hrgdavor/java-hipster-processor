@@ -63,8 +63,6 @@ public class GenMeta {
 		// public static final String TABLE_NAME = "sample_table";
 		addField(cp, PUBLIC().STATIC().FINAL(), String.class, "TABLE_NAME", "$S",def.tableName);
 
-		add_entityValues(cp, def);		
-		add_makeNew(cp, def);
 		add_fromResultSet(cp, def);
 
 //		TypeName returnType = parametrized(EnumArrayUpdateDelta.class,def.typeEnum);
@@ -74,6 +72,25 @@ public class GenMeta {
 //			delta.addCode("return new $T(changeSet, values, $T.COLUMN_ARRAY);\n", returnType,def.typeEnum);			
 //		});
 		
+		if(def.genUpdate){			
+			//@Override
+			//public final SampleUpdate mutableCopy(Object v){ return new SmapleUpdate((Sample)v); }
+			addMethod(cp,PUBLIC().FINAL(), def.typeUpdate, "mutableCopy", method->{
+				method.addAnnotation(Override.class);
+				addParameter(method, Object.class, "v");
+				method.addCode("return new $T(($T)v);\n", def.typeUpdate, def.type);
+			});
+		}else{
+			//@Override
+			//public final IUpdatable<IColumnMeta> mutableCopy(Sample v){ throw new RuntimeExcep(v); }
+			addMethod(cp,PUBLIC().FINAL(), parametrized(IUpdatable.class, def.typeEnum), "mutableCopy", method->{
+				method.addAnnotation(Override.class);
+				addParameter(method, Object.class, "v");
+				method.addCode("throw new $T($S);\n", RuntimeException.class,"can not be implemented without updater");
+			});
+			
+		}
+
 		//@Override
 		//public final Class<Sample> getEntityClass(){ return ENTITY_CLASS; }
 		addMethod(cp,PUBLIC().FINAL(), parametrized(Class.class, def.type), "getEntityClass", method->{
@@ -99,17 +116,24 @@ public class GenMeta {
 			method.addCode("return "+def.getProps().size()+";\n");
 		});
 		//@Override
-		//public final String getColumnNamesStr(){ return COLUMNS_STR; }
+		//public final String getColumnNamesStr(){ return EntityEnum.COLUMNS_STR; }
 		addMethod(cp,PUBLIC().FINAL(), String.class, "getColumnNamesStr", method->{
 			method.addAnnotation(Override.class);
 			method.addCode("return $T.COLUMNS_STR;\n",def.typeEnum);
-		});		
-		//@Override
-		//public final String getColumnNames(){ return COLUMN_NAMES; }
+		});
+
+		//public final String getColumnNames(){ return EntityEnum.COLUMN_NAMES; }
 		addMethod(cp,PUBLIC().FINAL(), parametrized(ImmutableList.class,String.class), "getColumnNames", method->{
-			method.addAnnotation(Override.class);
 			method.addCode("return $T.COLUMN_NAMES;\n",def.typeEnum);
 		});		
+
+		//@Override
+		//public final boolean containsColumn(){ return EntityEnum.COLUMN_NAMES.contains(columnName); }
+		addMethod(cp,PUBLIC().FINAL(), boolean.class, "containsColumn", method->{
+			addParameter(method, String.class, "columnName");
+			method.addCode("return $T.COLUMN_NAMES.contains(columnName);\n",def.typeEnum);
+		});		
+		
 		//@Override
 		//public final String getColumns(){ return COLUMNS; }
 		addMethod(cp,PUBLIC().FINAL(), parametrized(ImmutableList.class,def.typeEnum), "getColumns", method->{
@@ -154,64 +178,8 @@ public class GenMeta {
 				method.addCode("return instance."+primaryProp.getterName+"();");
 			});
 		}
-
-		//@Override
-		//public final Object[] entityGetValues(Sample instance){return entityValues(instance); }
-		addMethod(cp,PUBLIC().FINAL(), ArrayTypeName.of(Object.class), "entityGetValues", method->{
-			method.addParameter(def.type, "instance");
-			method.addAnnotation(Override.class);
-			method.addCode("return entityValues(instance);");
-		});
-
-		//@Override
-		//public final Sample entityFromValues(Object[] arr){return makeNew(arr); }
-		addMethod(cp,PUBLIC().FINAL(), def.type, "entityFromValues", method->{
-			method.addParameter(ArrayTypeName.of(Object.class), "arr");
-			method.addAnnotation(Override.class);
-			method.addCode("return makeNew(arr);");
-		});
 		
 		return cp;
-	}
-
-	private void add_makeNew(TypeSpec.Builder cp, EntityDef def) {
-		MethodSpec.Builder makeNew = methodBuilder(PUBLIC().STATIC().FINAL(), def.typeImmutable, "makeNew");
-		makeNew.addParameter(ArrayTypeName.of(Object.class), "v");
-		
-		makeNew.addCode("if(v == null) return null;\n\n");
-		
-		makeNew.addCode("return new $T(\n",def.typeImmutable);
-		
-		int count = def.getProps().size();
-		for(int i=0; i<count; i++) {
-			Property prop = def.getProps().get(i);
-			makeNew.addCode("\t($T)v[$L]",prop.type.box(),i);
-			makeNew.addCode(i == count-1 ? "":",");
-			makeNew.addCode(" //"+prop.fieldName+"\n");
-		}
-		makeNew.addCode(");\n");
-		cp.addMethod(makeNew.build());
-		
-	}
-	private void add_entityValues(TypeSpec.Builder cp, EntityDef def) {
-		MethodSpec.Builder entityValues = methodBuilder(PUBLIC().STATIC().FINAL(), ArrayTypeName.of(Object.class), "entityValues");
-
-		addParameter(entityValues,def.type, "v");
-		
-		entityValues.addCode("if(v instanceof $T)", IEntityValues.class);
-		entityValues.addCode(" return (($T)v).getEntityValues();\n", IEntityValues.class);
-
-		entityValues.addCode("return new  Object[]{\n");
-
-		int count = def.getProps().size();
-        for(int i=0; i<count; i++) {
-        	Property property = def.getProps().get(i);
-        	entityValues.addCode("\tv."+property.getterName+"()"+(i == count-1 ? "":",")+"\n");
-
-        }
-		entityValues.addCode("};\n");
-		cp.addMethod(entityValues.build());
-		
 	}
 	
 	private String getterName(Property p){

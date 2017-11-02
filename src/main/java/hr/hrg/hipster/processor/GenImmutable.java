@@ -30,10 +30,7 @@ public class GenImmutable {
 		}else{
 			builder.superclass(def.type);						
 		}
-		builder.addSuperinterface(IEntityValues.class);
 		builder.addSuperinterface(parametrized(IEnumGetter.class, def.typeEnum));		
-
-        CodeBlock.Builder getEntityValuesCode = CodeBlock.builder().add("return new Object[]{\n");
 
         int count = def.getProps().size();
         for(int i=0; i<count; i++) {
@@ -45,16 +42,10 @@ public class GenImmutable {
 
 			builder.addMethod(g.build());
 			
-			getEntityValuesCode.add("\t\t"+prop.fieldName+(i == count-1 ? "":",\n"));
         }
-        getEntityValuesCode.add("\t};\n");
-
-        MethodSpec.Builder getEntityValues = methodBuilder(PUBLIC(), TN_OBJECT_ARRAY, "getEntityValues").addAnnotation(Override.class);
-        getEntityValues.addCode(getEntityValuesCode.build());
-        builder.addMethod(getEntityValues.build());
        
         addEnumGetter(def, builder);
-        genConstructor(def,builder,jackson);
+        genConstructor(def,builder,jackson, false);
         
 		if(jackson) addDirectSerializer(def,builder);
         
@@ -153,14 +144,17 @@ public class GenImmutable {
 		});
 	}
 
-	public static void genConstructor(EntityDef def, TypeSpec.Builder cp, boolean jackson){
+	public static void genConstructor(EntityDef def, TypeSpec.Builder cp, boolean jackson, boolean mutable){
 
         MethodSpec.Builder constr = constructorBuilder(PUBLIC());
         if(jackson) constr.addAnnotation(CN_JsonCreator);
 		
         MethodSpec.Builder constr2 = constructorBuilder(PUBLIC());
         addParameter(constr2,def.type, "v");
-
+        
+        if(mutable){
+            constr2.addCode("if(v == null) return;\n");
+        }
         
         int count = def.getProps().size();
         for(int i=0; i<count; i++) {

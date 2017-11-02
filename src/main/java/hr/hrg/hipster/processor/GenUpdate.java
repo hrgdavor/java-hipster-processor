@@ -4,10 +4,8 @@ import static com.squareup.javapoet.TypeSpec.classBuilder;
 import static hr.hrg.javapoet.PoetUtil.*;
 
 import com.squareup.javapoet.*;
-import com.squareup.javapoet.TypeSpec;
 
-import hr.hrg.hipster.dao.change.*;
-import hr.hrg.javapoet.*;
+import hr.hrg.hipster.dao.*;
 
 public class GenUpdate {
 
@@ -66,7 +64,6 @@ public class GenUpdate {
         }else{
         	setValue = GenBuilder.genEnumSetter(def, cp);
         	GenBuilder.genConstructors(def, cp, jackson);
-        	GenBuilder.gen_getEntityValues(def, cp, jackson);
             GenImmutable.addEnumGetter(def, cp);
             if(jackson) GenImmutable.addDirectSerializer(def,cp);
         }
