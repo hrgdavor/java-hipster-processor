@@ -98,6 +98,12 @@ public class GenMeta {
 			method.addCode("return ENTITY_CLASS;\n");
 		});
 		//@Override
+		//public final String getEntityName(){ return "Sample"; }
+		addMethod(cp,PUBLIC().FINAL(), String.class, "getEntityName", method->{
+			method.addAnnotation(Override.class);
+			method.addCode("return $S;\n", def.simpleName);
+		});
+		//@Override
 		//public final Class<SampleEnum> getEntityEnum(){ return ENTITY_ENUM; }
 		addMethod(cp,PUBLIC().FINAL(), parametrized(Class.class, def.typeEnum), "getEntityEnum", method->{
 			method.addAnnotation(Override.class);
