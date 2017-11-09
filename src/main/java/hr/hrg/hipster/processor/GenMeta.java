@@ -51,6 +51,12 @@ public class GenMeta {
 //				constr.addCode("\n");
 			}
 		}
+
+		addconstructor(cp, PUBLIC(), method-> {
+			method.addParameter(IHipsterConnection.class, "conn");
+			method.addCode("this(conn.getHipster().getGetterSource());\n");
+			method.addCode("conn.getHipster().getReaderSource().registerFor(this, $T.class);\n",def.type);
+		});
 		
 		cp.addMethod(constr.build());
 
