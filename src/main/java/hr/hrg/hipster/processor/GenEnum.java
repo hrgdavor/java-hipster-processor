@@ -30,6 +30,9 @@ public class GenEnum {
 			getter.addAnnotation(Override.class);
 		};
 		
+		// public static final String TABLE_NAME = "sample_table";
+		addField(enumbuilder, PUBLIC().STATIC().FINAL(), String.class, "TABLE_NAME", "$S",def.tableName);
+		
 		addBeanfieldReadonly(enumbuilder, TN_CLASS_Q, "_type", addOverride);
 		addBeanfieldReadonly(enumbuilder, boolean.class, "_primitive", addOverride);
 		addBeanfieldReadonly(enumbuilder, String.class, "_columnName", addOverride);
@@ -52,7 +55,7 @@ public class GenEnum {
 
 			// regular arguments
 			codeBlock.add(",$L",prop.isPrimitive());
-			codeBlock.add(",$S",prop.tableName);
+			codeBlock.add(",$S",prop.tableName.isEmpty() ? def.tableName:prop.tableName);
 			codeBlock.add(",$S",prop.sql);
 
 			// type parameters if any

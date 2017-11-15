@@ -52,11 +52,11 @@ public class GenMeta {
 			}
 		}
 
-		addconstructor(cp, PUBLIC(), method-> {
-			method.addParameter(HipsterSql.class, "hipster");
-			method.addCode("this(hipster.getGetterSource());\n");
-			method.addCode("hipster.getReaderSource().registerFor(this, $T.class);\n",def.type);
-		});
+//		addconstructor(cp, PUBLIC(), method-> {
+//			method.addParameter(HipsterSql.class, "hipster");
+//			method.addCode("this(hipster.getGetterSource());\n");
+//			method.addCode("hipster.getReaderSource().registerFor(this, $T.class);\n",def.type);
+//		});
 		
 		cp.addMethod(constr.build());
 

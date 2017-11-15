@@ -44,10 +44,10 @@ public class EntityDef {
 		
 		HipsterEntity hipsterEntity = clazz.getAnnotation(HipsterEntity.class);
 		
-		if(hipsterEntity != null && hipsterEntity.table() != null) {
+		if(hipsterEntity != null && hipsterEntity.table() != null && !hipsterEntity.table().isEmpty()) {
 			this.tableName = hipsterEntity.table();
 		} else {
-			this.tableName = simpleName.toLowerCase();
+			this.tableName = simpleName;
 		}
 
 		genMeta = hipsterEntity.genMeta();
