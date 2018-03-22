@@ -2,9 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>hr.hrg</groupId>
 	<artifactId>hipster-processor</artifactId>
-	<version>0.2.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>hipster-processor</name>
@@ -23,13 +21,7 @@
 
 		<dependency>
 			<groupId>hr.hrg</groupId>
-			<artifactId>hipster-dao</artifactId>
-			<version>0.2.0-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>hr.hrg</groupId>
-			<artifactId>hipster-dao-change</artifactId>
+			<artifactId>hipster-sql</artifactId>
 			<version>0.2.0-SNAPSHOT</version>
 		</dependency>
 

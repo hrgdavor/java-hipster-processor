@@ -59,8 +59,7 @@ public class GenBuilder {
 	}
 
 	public static void addInterfaces(EntityDef def, TypeSpec.Builder builder, boolean jackson) {
-		builder.addSuperinterface(parametrized(IEnumSetter.class, def.typeEnum));
-		builder.addSuperinterface(parametrized(IEnumGetter.class, def.typeEnum));
+		builder.addSuperinterface(parametrized(IUpdatable.class, def.typeEnum));
 	}	
 	
 	public static void genConstructors(EntityDef def, TypeSpec.Builder builder, boolean jackson){

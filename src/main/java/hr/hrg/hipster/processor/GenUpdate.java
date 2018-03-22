@@ -28,10 +28,6 @@ public class GenUpdate {
 			cp.addSuperinterface(def.type);
 			GenBuilder.addInterfaces(def, cp, jackson);
 		}
-		
-		
-		cp.addSuperinterface(parametrized(IUpdateDelta.class,def.typeEnum));
-		cp.addSuperinterface(parametrized(IUpdatable.class,def.typeEnum));
 
     	addField(cp,PROTECTED(), long.class, "_changeSet");
 

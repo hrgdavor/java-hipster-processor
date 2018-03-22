@@ -4,6 +4,7 @@ import static hr.hrg.hipster.processor.HipsterProcessorUtil.*;
 import static hr.hrg.javapoet.PoetUtil.*;
 
 import java.sql.*;
+import java.util.Arrays;
 
 import com.squareup.javapoet.*;
 
@@ -26,6 +27,7 @@ public class GenMeta {
 		cp.addSuperinterface(parametrized(IEntityMeta.class,def.type, primaryType, enumName));
 		
 		FieldSpec resultGetterField = addField(cp,PUBLIC().FINAL(), ResultGetterSource.class, "getterSource");
+		FieldSpec ordinalField = addField(cp,PRIVATE().FINAL(), int.class, "ordinal");
 		
 		for(Property p:def.getProps()) {
 			if(getterName(p) == null){
@@ -35,6 +37,7 @@ public class GenMeta {
 
 		MethodSpec.Builder constr = constructorBuilder(PUBLIC());
 		addSetterParameter(constr, resultGetterField, null);
+		addSetterParameter(constr, ordinalField, null);
 		for(Property p:def.getProps()) {
 			if(getterName(p) == null){
 				constr.addCode("_"+p.fieldName+"_resultGetter = ($T) getterSource.getFor(", parametrized(IResultGetter.class, p.type));
@@ -110,11 +113,12 @@ public class GenMeta {
 			method.addCode("return $S;\n", def.simpleName);
 		});
 		//@Override
-		//public final Class<SampleEnum> getEntityEnum(){ return ENTITY_ENUM; }
-		addMethod(cp,PUBLIC().FINAL(), parametrized(Class.class, def.typeEnum), "getEntityEnum", method->{
+		//public final int ordinal(){ return ordinal; }
+		addMethod(cp,PUBLIC().FINAL(), int.class, "ordinal", method->{
 			method.addAnnotation(Override.class);
-			method.addCode("return ENTITY_ENUM;\n");
+			method.addCode("return ordinal;\n");
 		});
+
 		//@Override
 		//public final String getTableName(){ return TABLE_NAME; }
 		addMethod(cp,PUBLIC().FINAL(), String.class, "getTableName", method->{
@@ -143,7 +147,7 @@ public class GenMeta {
 		//public final boolean containsColumn(){ return EntityEnum.COLUMN_NAMES.contains(columnName); }
 		addMethod(cp,PUBLIC().FINAL(), boolean.class, "containsColumn", method->{
 			addParameter(method, String.class, "columnName");
-			method.addCode("return $T.COLUMN_NAMES.contains(columnName);\n",def.typeEnum);
+			method.addCode("return $T.binarySearch($T.COLUMN_ARRAY_SORTED_STR, columnName) != -1;\n",Arrays.class,def.typeEnum);
 		});		
 		
 		//@Override
@@ -161,10 +165,12 @@ public class GenMeta {
 		//@Override
 		//public final SampleEnum getColumn(String name){ return SamleEnum.valueOf(name); }
 		addMethod(cp,PUBLIC().FINAL(), def.typeEnum, "getColumn", method->{
-			method.addParameter(String.class, "name");
+			method.addParameter(String.class, "columnName");
 			method.addAnnotation(Override.class);
-			method.addCode("return $T.valueOf(name);\n",def.typeEnum);
+			method.addCode("int pos = $T.binarySearch($T.COLUMN_ARRAY_SORTED_STR, columnName);\n",Arrays.class,def.typeEnum);
+			method.addCode("return pos == -1 ? null: $T.COLUMN_ARRAY_SORTED[pos];\n",def.typeEnum);
 		});
+		
 		//@Override
 		//public final SampleEnum getColumn(String name){ return COLUMN_ARRAY[ordinal]; }
 		addMethod(cp,PUBLIC().FINAL(), def.typeEnum, "getColumn", method->{
