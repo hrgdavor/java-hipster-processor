@@ -147,7 +147,7 @@ public class GenMeta {
 		//public final boolean containsColumn(){ return EntityEnum.COLUMN_NAMES.contains(columnName); }
 		addMethod(cp,PUBLIC().FINAL(), boolean.class, "containsColumn", method->{
 			addParameter(method, String.class, "columnName");
-			method.addCode("return $T.binarySearch($T.COLUMN_ARRAY_SORTED_STR, columnName) != -1;\n",Arrays.class,def.typeEnum);
+			method.addCode("return $T.binarySearch($T.COLUMN_ARRAY_SORTED_STR, columnName) > -1;\n",Arrays.class,def.typeEnum);
 		});		
 		
 		//@Override
@@ -168,7 +168,7 @@ public class GenMeta {
 			method.addParameter(String.class, "columnName");
 			method.addAnnotation(Override.class);
 			method.addCode("int pos = $T.binarySearch($T.COLUMN_ARRAY_SORTED_STR, columnName);\n",Arrays.class,def.typeEnum);
-			method.addCode("return pos == -1 ? null: $T.COLUMN_ARRAY_SORTED[pos];\n",def.typeEnum);
+			method.addCode("return pos < 0 ? null: $T.COLUMN_ARRAY_SORTED[pos];\n",def.typeEnum);
 		});
 		
 		//@Override
