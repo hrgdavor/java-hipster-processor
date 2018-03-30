@@ -33,8 +33,8 @@ public class GenEnum {
 		// public static final String TABLE_NAME = "sample_table";
 		addField(enumbuilder, PUBLIC().STATIC().FINAL(), String.class, "TABLE_NAME", "$S",def.tableName);
 		
-		addBeanfieldReadonly(enumbuilder, TN_CLASS_Q, "type", addOverride);
-		addBeanfieldReadonly(enumbuilder, TN_CLASS_Q, "primitiveType", addOverride);
+		addBeanfieldReadonly(enumbuilder, TN_CLASS_Q, "_type", addOverride);
+		addBeanfieldReadonly(enumbuilder, TN_CLASS_Q, "_primitiveType", addOverride);
 		addBeanfieldReadonly(enumbuilder, String.class, "columnName", addOverride);
 		addBeanfieldReadonly(enumbuilder, String.class, "getterName", addOverride);
 		addBeanfieldReadonly(enumbuilder, String.class, "tableName", addOverride);
@@ -81,7 +81,7 @@ public class GenEnum {
 		}
 				
 		addconstructor(enumbuilder, PRIVATE(), (method) -> {
-			addSetterParameter(enumbuilder,method,"columnName","getterName","type","primitiveType","tableName","columnSql");
+			addSetterParameter(enumbuilder,method,"columnName","getterName","_type","_primitiveType","tableName","columnSql");
 			method.addParameter(ArrayTypeName.of(TN_CLASS_Q), "typeParams");
 			method.varargs();
 			method.addCode("this.typeParams = $T.safe(typeParams);\n",ImmutableList.class);
@@ -96,7 +96,7 @@ public class GenEnum {
 
 		addMethod(enumbuilder, PUBLIC(), boolean.class, "isPrimitive", method->{
 			method.addAnnotation(Override.class);
-			method.addCode("return primitiveType != null;\n");
+			method.addCode("return _primitiveType != null;\n");
 		});
 
 		addMethod(enumbuilder, PUBLIC(), String.class, "getQueryText", method->{

@@ -14,10 +14,7 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedOptions;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.persistence.Id;
 import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
@@ -30,6 +27,7 @@ import com.squareup.javapoet.TypeSpec;
 import com.squareup.javapoet.TypeSpec.Builder;
 
 import hr.hrg.hipster.dao.*;
+import hr.hrg.hipster.sql.*;
 
 @SupportedAnnotationTypes("hr.hrg.hipster.dao.HipsterEntity")
 @SupportedOptions({"hipster_proc_jackson","hipster_proc_builder"})
@@ -83,6 +81,7 @@ public class HipsterDaoProcessor extends AbstractProcessor{
         		Property prop = def.addProp(name, typeName, method.getReturnType(), method);
         		
         		prop.readOnly = method.getAnnotation(Id.class) != null;
+
         		if(prop.readOnly) {
         			if(def.getPrimaryProp() != null) {
         				processingEnv.getMessager().printMessage(Kind.ERROR, "Second id field found, frist one was at "+def.getPrimaryProp().getterName+"()", method);        				
