@@ -7,6 +7,7 @@ public class HipsterProcessorUtil {
 	public static final ClassName CN_JsonCreator  = ClassName.get("com.fasterxml.jackson.annotation","JsonCreator");
 	public static final ClassName CN_JsonProperty = ClassName.get("com.fasterxml.jackson.annotation","JsonProperty");	
 	public static final ClassName CN_JsonGenerator = ClassName.get("com.fasterxml.jackson.core","JsonGenerator");
+	public static final ClassName CN_JsonIgnore = ClassName.get("com.fasterxml.jackson.annotation","JsonIgnore");
 	public static final ClassName CN_JsonGenerationException = ClassName.get("com.fasterxml.jackson.core","JsonGenerationException");
 	public static final ClassName CN_SerializerProvider = ClassName.get("com.fasterxml.jackson.databind","SerializerProvider");	
 	public static final ClassName CN_JsonSerialize = ClassName.get("com.fasterxml.jackson.databind.annotation","JsonSerialize");

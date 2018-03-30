@@ -38,6 +38,7 @@ public class GenImmutable {
 			addField(builder, PRIVATE().FINAL(), prop.type, prop.name);
         	
 			MethodSpec.Builder g = methodBuilder(PUBLIC(), prop.type, prop.getterName).addAnnotation(Override.class);
+			if(prop.jsonIgnore) g.addAnnotation(CN_JsonIgnore);
 			g.addCode("return "+prop.fieldName+";\n");
 
 			builder.addMethod(g.build());
@@ -68,6 +69,9 @@ public class GenImmutable {
 			int count = def.getProps().size();
 			for (int i = 0; i < count; i++) {
 				Property prop = def.getProps().get(i);
+				
+				if(prop.jsonIgnore) continue;
+				
 				String typeStr = prop.type.toString();
 				boolean primitive = prop.type.isPrimitive();
 				

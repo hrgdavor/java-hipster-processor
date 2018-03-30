@@ -1,7 +1,10 @@
 package hr.hrg.hipster.processor;
 
-import javax.lang.model.element.ExecutableElement;
+import java.util.*;
+
+import javax.lang.model.element.*;
 import javax.persistence.Column;
+import javax.tools.Diagnostic.*;
 
 import com.squareup.javapoet.TypeName;
 
@@ -19,12 +22,26 @@ class Property {
 	public String tableName = "";
 	public String sql = "";
 	public TypeName type;
+	public ExecutableElement method;
+	public boolean jsonIgnore;
 	
 	public Property(String getter, TypeName type, ExecutableElement method, String tableName){
 		this.getterName = getter;
 		this.type = type;
 		this.tableName = tableName;
 		String name = null;
+
+		List<? extends AnnotationMirror> list = method.getAnnotationMirrors();
+		if(list.size() >0){				
+			for(AnnotationMirror mirror: list){
+				if("com.fasterxml.jackson.annotation.JsonIgnore".equals(mirror.getAnnotationType().toString())){
+					this.jsonIgnore = true;
+				}
+			}			
+		}
+		
+		this.method = method;
+		
 		if(getter.startsWith("get")) {
 			name = getter.substring(3);
 		}else

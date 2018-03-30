@@ -1,6 +1,7 @@
 package hr.hrg.hipster.processor;
 
 import static com.squareup.javapoet.TypeSpec.classBuilder;
+import static hr.hrg.hipster.processor.HipsterProcessorUtil.*;
 import static hr.hrg.javapoet.PoetUtil.*;
 
 import com.squareup.javapoet.*;
@@ -38,6 +39,9 @@ public class GenUpdate {
         	if(!genBuilder)	addField(cp,PROTECTED(), prop.type, prop.name);
 
 			MethodSpec.Builder g = methodBuilder(PUBLIC(), prop.type, prop.getterName);
+
+			if(prop.jsonIgnore) g.addAnnotation(CN_JsonIgnore);
+			
 			g.addCode("return "+prop.fieldName+";\n");
 			if(genBuilder) g.addAnnotation(Override.class);
 			cp.addMethod(g.build());
