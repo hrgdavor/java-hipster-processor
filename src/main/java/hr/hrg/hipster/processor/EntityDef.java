@@ -23,7 +23,7 @@ public class EntityDef {
 	private Property primaryProp;
 	public final String tableName;
 	public final boolean isInterface;
-	public final ClassName typeEnum;
+//	public final ClassName typeEnum;
 	public final ClassName typeImmutable;
 	public final ClassName typeBuilder;
 	public final ClassName typeUpdate;
@@ -54,7 +54,7 @@ public class EntityDef {
 		genUpdate = hipsterEntity.genUpdate();
 		this.type = ClassName.get(clazz);
 
-		this.typeEnum      = ClassName.get(packageName, simpleName+"Enum");
+//		this.typeEnum      = ClassName.get(packageName, simpleName+"Enum");
 		this.typeImmutable = ClassName.get(packageName, simpleName+"Immutable");
 		this.typeBuilder   = ClassName.get(packageName, simpleName+"Builder");
 		this.typeUpdate    = ClassName.get(packageName, simpleName+"Update");

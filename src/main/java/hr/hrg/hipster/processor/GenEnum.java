@@ -17,14 +17,14 @@ public class GenEnum {
 
 	public TypeSpec.Builder gen2(EntityDef def) throws IOException {
 		
-		Builder enumbuilder = enumBuilder(def.typeEnum)
-				.addSuperinterface(IColumnMeta.class)
+		Builder enumbuilder = enumBuilder(def.type)
+//				.addSuperinterface(IColumnMeta.class)
 				.addSuperinterface(IQueryLiteral.class);
 
 		PUBLIC().to(enumbuilder);
 		
 		String initCode = def.getPrimaryProp() == null ? "null":def.getPrimaryProp().fieldName;
-		addField(enumbuilder, PUBLIC().STATIC().FINAL(), def.typeEnum, "PRIMARY", initCode);
+		addField(enumbuilder, PUBLIC().STATIC().FINAL(), def.type, "PRIMARY", initCode);
 		
 		BeanCustomizer addOverride = (field, getter, setter) -> {
 			getter.addAnnotation(Override.class);
@@ -152,10 +152,10 @@ public class GenEnum {
 		addField(cp,PUBLIC().STATIC().FINAL(), parametrized(ImmutableList.class, String.class), "COLUMN_NAMES", 
 				field->field.initializer("ImmutableList.safe"+arr.toString()));
 		
-		addField(cp,PUBLIC().STATIC().FINAL(), ArrayTypeName.of(def.typeEnum), "COLUMN_ARRAY", 
-				field->field.initializer("$T.values()",def.typeEnum));
+		addField(cp,PUBLIC().STATIC().FINAL(), ArrayTypeName.of(def.type), "COLUMN_ARRAY", 
+				field->field.initializer("$T.values()",def.type));
 
-		addField(cp,PUBLIC().STATIC().FINAL(), parametrized(ImmutableList.class, def.typeEnum), "COLUMNS", 
+		addField(cp,PUBLIC().STATIC().FINAL(), parametrized(ImmutableList.class, def.type), "COLUMNS", 
 				field->field.initializer("ImmutableList.safe(COLUMN_ARRAY)"));
 
 		Collections.sort(enumNames);
@@ -175,7 +175,7 @@ public class GenEnum {
 		arr.append("}");
 		str.append("}");
 
-		addField(cp,PUBLIC().STATIC().FINAL(), ArrayTypeName.of(def.typeEnum), "COLUMN_ARRAY_SORTED", 
+		addField(cp,PUBLIC().STATIC().FINAL(), ArrayTypeName.of(def.type), "COLUMN_ARRAY_SORTED", 
 				field->field.initializer(arr.toString()));
 		
 		addField(cp,PUBLIC().STATIC().FINAL(), ArrayTypeName.of(String.class), "COLUMN_ARRAY_SORTED_STR", 

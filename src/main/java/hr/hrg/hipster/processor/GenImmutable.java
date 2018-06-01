@@ -10,15 +10,17 @@ import com.squareup.javapoet.*;
 import com.squareup.javapoet.MethodSpec.Builder;
 
 import hr.hrg.hipster.dao.*;
-import hr.hrg.hipster.dao.change.*;
 import hr.hrg.hipster.dao.jackson.*;
+import hr.hrg.hipster.sql.*;
 
 public class GenImmutable {
 
 	private boolean jackson;
+	private ClassName columnMetaBase;
 
-	public GenImmutable(boolean jackson) {
+	public GenImmutable(boolean jackson, ClassName columnMetaBase) {
 		this.jackson = jackson;
+		this.columnMetaBase = columnMetaBase;
 	}
 
 	public TypeSpec.Builder gen2(EntityDef def) throws IOException {
@@ -30,7 +32,7 @@ public class GenImmutable {
 		}else{
 			builder.superclass(def.type);						
 		}
-		builder.addSuperinterface(parametrized(IEnumGetter.class, def.typeEnum));		
+		builder.addSuperinterface(parametrized(IEnumGetter.class, BaseColumnMeta.class));		
 
         int count = def.getProps().size();
         for(int i=0; i<count; i++) {
@@ -45,7 +47,7 @@ public class GenImmutable {
 			
         }
        
-        addEnumGetter(def, builder);
+        addEnumGetter(def, builder, columnMetaBase);
         genConstructor(def,builder,jackson, false);
         
 		if(jackson) addDirectSerializer(def,builder);
@@ -121,13 +123,13 @@ public class GenImmutable {
 			method.addCode("\tjgen.$L($L);\n",jgenMethod,prop);
 		}
 	}
-	public static void addEnumGetter(EntityDef def, TypeSpec.Builder cp){
+	public static void addEnumGetter(EntityDef def, TypeSpec.Builder cp,ClassName columnMetaBase){
 
 		
 		addMethod(cp, Object.class, "getValue", method -> {		
 			PUBLIC().FINAL().to(method);
 	        method.addAnnotation(Override.class);
-	        addParameter(method, def.typeEnum	, "column");
+	        addParameter(method, columnMetaBase	, "column");
 	        method.addCode("return this.getValue(column.ordinal());\n");
 		});
 		

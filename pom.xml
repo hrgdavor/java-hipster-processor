@@ -10,7 +10,7 @@
 	<parent>
 		<groupId>hr.hrg</groupId>
 		<artifactId>hipster-sql-all</artifactId>
-		<version>0.2.0-SNAPSHOT</version>
+		<version>0.3.0-SNAPSHOT</version>
 	</parent>
 
 	<properties>
@@ -22,7 +22,7 @@
 		<dependency>
 			<groupId>hr.hrg</groupId>
 			<artifactId>hipster-sql</artifactId>
-			<version>0.2.0-SNAPSHOT</version>
+			<version>0.3.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

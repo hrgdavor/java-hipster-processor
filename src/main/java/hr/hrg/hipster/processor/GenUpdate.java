@@ -12,10 +12,12 @@ public class GenUpdate {
 
 	private boolean jackson;
 	private boolean genBuilder;
+	private ClassName columnMetaBase;
 
-	public GenUpdate(boolean jackson, boolean genBuilder) {
+	public GenUpdate(boolean jackson, boolean genBuilder, ClassName columnMetaBase) {
 		this.jackson = jackson;
 		this.genBuilder = genBuilder;
+		this.columnMetaBase = columnMetaBase;
 	}
 
 	public TypeSpec.Builder gen2(EntityDef def) {
@@ -27,7 +29,7 @@ public class GenUpdate {
 			cp.superclass(def.typeBuilder);			
 		}else{
 			cp.addSuperinterface(def.type);
-			GenBuilder.addInterfaces(def, cp, jackson);
+			GenBuilder.addInterfaces(def, cp, jackson, columnMetaBase);
 		}
 
     	addField(cp,PROTECTED(), long.class, "_changeSet");
@@ -62,9 +64,9 @@ public class GenUpdate {
 	        setValue.addCode("super.setValue(ordinal, value);\n");
 	        genConstrucotrsExt(def, cp, jackson);
         }else{
-        	setValue = GenBuilder.genEnumSetter(def, cp);
+        	setValue = GenBuilder.genEnumSetter(def, cp,columnMetaBase);
         	GenBuilder.genConstructors(def, cp, jackson);
-            GenImmutable.addEnumGetter(def, cp);
+            GenImmutable.addEnumGetter(def, cp,columnMetaBase);
             if(jackson) GenImmutable.addDirectSerializer(def,cp);
         }
         setValue.addCode("this._changeSet |= (1L<<ordinal);\n");
@@ -80,7 +82,7 @@ public class GenUpdate {
         
         addMethod(cp, PUBLIC(), boolean.class, "isChanged", method -> {
         	method.addAnnotation(Override.class);
-        	addParameter(method, def.typeEnum, "column");
+        	addParameter(method, columnMetaBase, "column");
         	method.addCode("return (_changeSet & (1L << column.ordinal())) != 0;\n");
         });
         

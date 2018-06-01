@@ -11,9 +11,11 @@ import hr.hrg.hipster.dao.change.*;
 public class GenBuilder {
 
 	private boolean jackson;
+	private ClassName columnMetaBase;
 
-	public GenBuilder(boolean jackson) {
+	public GenBuilder(boolean jackson, ClassName columnMetaBase) {
 		this.jackson = jackson;
+		this.columnMetaBase = columnMetaBase;
 	}
 
 
@@ -27,7 +29,7 @@ public class GenBuilder {
 			builder.superclass(def.type);
 		}
 
-		addInterfaces(def, builder, jackson);
+		addInterfaces(def, builder, jackson, columnMetaBase);
         
         CodeBlock.Builder code = CodeBlock.builder().add("return new $T(", def.typeImmutable);
 
@@ -51,15 +53,15 @@ public class GenBuilder {
         
         code.add("\t);");
 		
-        GenImmutable.addEnumGetter(def, builder);
-        builder.addMethod(genEnumSetter(def, builder).build());
+        GenImmutable.addEnumGetter(def, builder,columnMetaBase);
+        builder.addMethod(genEnumSetter(def, builder, columnMetaBase).build());
         if(jackson) GenImmutable.addDirectSerializer(def,builder);
         
         return builder;
 	}
 
-	public static void addInterfaces(EntityDef def, TypeSpec.Builder builder, boolean jackson) {
-		builder.addSuperinterface(parametrized(IUpdatable.class, def.typeEnum));
+	public static void addInterfaces(EntityDef def, TypeSpec.Builder builder, boolean jackson, ClassName columnMetaBase) {
+		builder.addSuperinterface(parametrized(IUpdatable.class, columnMetaBase));
 	}	
 	
 	public static void genConstructors(EntityDef def, TypeSpec.Builder builder, boolean jackson){
@@ -70,11 +72,11 @@ public class GenBuilder {
 	}
 
 	
-	public static MethodSpec.Builder genEnumSetter(EntityDef def, TypeSpec.Builder cp){
+	public static MethodSpec.Builder genEnumSetter(EntityDef def, TypeSpec.Builder cp, ClassName columnMetaBase){
 
         MethodSpec.Builder setValue = methodBuilder(PUBLIC(), void.class, "setValue");
         setValue.addAnnotation(Override.class);
-        setValue.addParameter(def.typeEnum, "column");
+        setValue.addParameter(columnMetaBase, "column");
         setValue.addParameter(Object.class, "value");
         setValue.addCode("this.setValue(column.ordinal(), value);\n");
 		cp.addMethod(setValue.build());

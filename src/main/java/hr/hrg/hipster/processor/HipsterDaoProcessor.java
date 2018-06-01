@@ -93,24 +93,26 @@ public class HipsterDaoProcessor extends AbstractProcessor{
 		}
         
         try {
-        	Builder builder = new GenEnum().gen2(def);
-        	write(def.typeEnum.packageName(), builder.build(), processingEnv);
+//        	Builder builder = new GenEnum().gen2(def);
+//        	write(def.typeEnum.packageName(), builder.build(), processingEnv);
 
-        	builder = new GenImmutable(jackson).gen2(def);
+        	ClassName columnMetaBase  = ClassName.get("hr.hrg.hipster.sql","BaseColumnMeta");
+        	
+        	Builder builder = new GenImmutable(jackson, columnMetaBase).gen2(def);
         	write(def.typeImmutable, builder.build(), processingEnv);
 
         	if(genBuilder){
-        		builder = new GenBuilder(jackson).gen2(def);
+        		builder = new GenBuilder(jackson,columnMetaBase).gen2(def);
         		write(def.typeBuilder, builder.build(), processingEnv);
         	}
 
         	if(def.genUpdate){
-				builder = new GenUpdate(jackson, genBuilder).gen2(def);
+				builder = new GenUpdate(jackson, genBuilder,columnMetaBase).gen2(def);
 				write(def.typeUpdate, builder.build(), processingEnv);
         	}
     		if(def.genMeta){
     			
-    			builder = new GenMeta().gen(def);
+    			builder = new GenMeta().gen(def,columnMetaBase);
     			write(def.typeDelta, builder.build(), processingEnv);    			
     			
 //    			builder = new GenDelta().gen2(def);

@@ -3,10 +3,11 @@ package hr.hrg.hipster.processor;
 import java.util.*;
 
 import javax.lang.model.element.*;
+import javax.lang.model.type.*;
 import javax.persistence.Column;
 import javax.tools.Diagnostic.*;
 
-import com.squareup.javapoet.TypeName;
+import com.squareup.javapoet.*;
 
 import hr.hrg.hipster.sql.*;
 import hr.hrg.javapoet.PoetUtil;
@@ -22,6 +23,8 @@ class Property {
 	public String tableName = "";
 	public String sql = "";
 	public TypeName type;
+	public TypeName customType;
+	public String customTypeKey = "";
 	public ExecutableElement method;
 	public boolean jsonIgnore;
 	
@@ -64,6 +67,16 @@ class Property {
 			if(!hipsterColumn.name().isEmpty()) this.columnName = columnAnnotation.name();
 			this.sql = hipsterColumn.sql();
 			if(!hipsterColumn.table().isEmpty()) this.tableName = columnAnnotation.table();
+			try {
+				if(hipsterColumn.customType() != ICustomType.class) {
+					this.customType = ClassName.get(hipsterColumn.customType());// will likely always throw error					
+				}
+			}catch (MirroredTypeException e) {
+				if(!"hr.hrg.hipster.sql.ICustomType".equals(e.getTypeMirror().toString())) {					
+					this.customType = ClassName.get(e.getTypeMirror());
+				}
+			}
+			this.customTypeKey = hipsterColumn.customTypeKey();
 		}			
 		
 	}
