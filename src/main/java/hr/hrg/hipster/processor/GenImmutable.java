@@ -32,7 +32,7 @@ public class GenImmutable {
 		}else{
 			builder.superclass(def.type);						
 		}
-		builder.addSuperinterface(parametrized(IEnumGetter.class, BaseColumnMeta.class));		
+		builder.addSuperinterface(parametrized(IEnumGetter.class, columnMetaBase));		
 
         int count = def.getProps().size();
         for(int i=0; i<count; i++) {
@@ -40,7 +40,7 @@ public class GenImmutable {
 			addField(builder, PRIVATE().FINAL(), prop.type, prop.name);
         	
 			MethodSpec.Builder g = methodBuilder(PUBLIC(), prop.type, prop.getterName).addAnnotation(Override.class);
-			if(prop.jsonIgnore) g.addAnnotation(CN_JsonIgnore);
+			copyAnnotations(g, prop);
 			g.addCode("return "+prop.fieldName+";\n");
 
 			builder.addMethod(g.build());
@@ -53,6 +53,14 @@ public class GenImmutable {
 		if(jackson) addDirectSerializer(def,builder);
         
 		return builder;
+	}
+
+	public static void copyAnnotations(MethodSpec.Builder g, Property prop) {
+//		if(prop.jsonIgnore) g.addAnnotation(CN_JsonIgnore);
+		// TODO allow config to skip some annotations
+		for(AnnotationSpec a:prop.annotations) {
+			g.addAnnotation(a);
+		}
 	}
 
 	public static void addDirectSerializer(EntityDef def, TypeSpec.Builder builder){

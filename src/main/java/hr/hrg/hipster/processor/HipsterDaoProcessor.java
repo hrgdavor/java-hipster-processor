@@ -67,7 +67,7 @@ public class HipsterDaoProcessor extends AbstractProcessor{
                 "annotated class: " + clazz.getQualifiedName());
         
         
-        EntityDef def = new EntityDef(clazz);
+        EntityDef def = new EntityDef(clazz, processingEnv.getElementUtils());
         
         for (Element element : clazz.getEnclosedElements()) {
         	if(element.getKind() == ElementKind.METHOD) {
@@ -78,7 +78,7 @@ public class HipsterDaoProcessor extends AbstractProcessor{
         		String typeNameStr = typeName.toString();
         		if(!name.startsWith("get") && (!name.startsWith("is") && (typeNameStr == "boolean" || typeNameStr == "java.lang.Boolean")) ) continue;
 
-        		Property prop = def.addProp(name, typeName, method.getReturnType(), method);
+        		Property prop = def.addProp(name, typeName, method.getReturnType(), method, processingEnv);
         		
         		prop.readOnly = method.getAnnotation(Id.class) != null;
 
@@ -95,8 +95,9 @@ public class HipsterDaoProcessor extends AbstractProcessor{
         try {
 //        	Builder builder = new GenEnum().gen2(def);
 //        	write(def.typeEnum.packageName(), builder.build(), processingEnv);
-
-        	ClassName columnMetaBase  = ClassName.get("hr.hrg.hipster.sql","BaseColumnMeta");
+        	
+        	String[] className = HipsterProcessorUtil.splitClassName(processingEnv.getOptions().getOrDefault("hipster_proc_column_meta_class","hr.hrg.hipster.sql.BaseColumnMeta"));
+        	ClassName columnMetaBase  = ClassName.get(className[0],className[1]);
         	
         	Builder builder = new GenImmutable(jackson, columnMetaBase).gen2(def);
         	write(def.typeImmutable, builder.build(), processingEnv);
@@ -113,7 +114,10 @@ public class HipsterDaoProcessor extends AbstractProcessor{
     		if(def.genMeta){
     			
     			builder = new GenMeta().gen(def,columnMetaBase);
-    			write(def.typeDelta, builder.build(), processingEnv);    			
+    			JavaFile javaFile = JavaFile.builder(def.typeDelta.packageName(), builder.build())
+    					.addStaticImport(HipsterSqlUtil.class,"annotation")
+    					.build();
+    			write(def.typeDelta.packageName(), javaFile, processingEnv);
     			
 //    			builder = new GenDelta().gen2(def);
 //    			write(def.typeDelta, builder.build(), processingEnv);
@@ -132,13 +136,16 @@ public class HipsterDaoProcessor extends AbstractProcessor{
 	}
 	
 	public void write(String packageName, TypeSpec spec, ProcessingEnvironment processingEnv) {
+		write(packageName, JavaFile.builder(packageName, spec).build(), processingEnv);
+	}
+	
+	public void write(String packageName, JavaFile javaFile, ProcessingEnvironment processingEnv) {
 		try {
-			JavaFileObject jfo = processingEnv.getFiler().createSourceFile(packageName+"."+spec.name);
-
+			JavaFileObject jfo = processingEnv.getFiler().createSourceFile(packageName+"."+javaFile.typeSpec.name);
+			
 			try (	OutputStream out = jfo.openOutputStream();
 					PrintWriter pw = new PrintWriter(out);
 					){
-				JavaFile javaFile = JavaFile.builder(packageName, spec).build();
 				javaFile.writeTo(pw);
 				pw.flush();
 			}		

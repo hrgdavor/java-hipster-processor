@@ -38,15 +38,14 @@ public class GenUpdate {
         for(int i=0; i<count; i++) {
         	Property prop = def.getProps().get(i);
         	
-        	if(!genBuilder)	addField(cp,PROTECTED(), prop.type, prop.name);
-
-			MethodSpec.Builder g = methodBuilder(PUBLIC(), prop.type, prop.getterName);
-
-			if(prop.jsonIgnore) g.addAnnotation(CN_JsonIgnore);
-			
-			g.addCode("return "+prop.fieldName+";\n");
-			if(genBuilder) g.addAnnotation(Override.class);
-			cp.addMethod(g.build());
+        	if(!genBuilder){
+        		addField(cp,PROTECTED(), prop.type, prop.name);
+        		MethodSpec.Builder g = methodBuilder(PUBLIC(), prop.type, prop.getterName);
+				// it would be done there
+				GenImmutable.copyAnnotations(g, prop);				
+				g.addCode("return "+prop.fieldName+";\n");
+				cp.addMethod(g.build());
+			}
 
 			MethodSpec.Builder bm = methodBuilder(PUBLIC(), def.typeUpdate, prop.name);
 			bm.addCode("this._changeSet |= "+(1L<<i)+"L;\n");
@@ -68,6 +67,7 @@ public class GenUpdate {
         	GenBuilder.genConstructors(def, cp, jackson);
             GenImmutable.addEnumGetter(def, cp,columnMetaBase);
             if(jackson) GenImmutable.addDirectSerializer(def,cp);
+            
         }
         setValue.addCode("this._changeSet |= (1L<<ordinal);\n");
         cp.addMethod(setValue.build());

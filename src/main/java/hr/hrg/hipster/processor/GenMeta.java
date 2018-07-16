@@ -6,6 +6,7 @@ import static hr.hrg.javapoet.PoetUtil.*;
 
 import java.sql.*;
 import java.util.*;
+import java.util.Map.*;
 
 import com.squareup.javapoet.*;
 import com.squareup.javapoet.FieldSpec.*;
@@ -36,7 +37,7 @@ public class GenMeta {
 		
 		// public static final String TABLE_NAME = "sample_table";
 		addField(cp, PUBLIC().STATIC().FINAL(), QueryLiteral.class, "TABLE", "new $T(TABLE_NAME,true)",QueryLiteral.class);
-
+		
 		int ordinal = 0;
 		for(Property prop: def.getProps()){
 			// type or raw type
@@ -47,7 +48,7 @@ public class GenMeta {
 			}
 			
 			com.squareup.javapoet.CodeBlock.Builder codeBlock = CodeBlock.builder();
-			codeBlock.add("new $T<$T>($L, $S",BaseColumnMeta.class, rawType.box(), ordinal, prop.name);
+			codeBlock.add("new $T<$T>($L, $S",columnMetaBase, rawType.box(), ordinal, prop.name);
 			codeBlock.add(",$S",prop.columnName);
 			codeBlock.add(",$S",prop.getterName);
 			codeBlock.add(",ENTITY_CLASS");
@@ -71,8 +72,57 @@ public class GenMeta {
 				}
 			}
 			codeBlock.add(")");
+			
+			if(prop.annotations.size() == 0) {
+				// CASE: Reflection
+				// force initialisation of "annotations" field in BaseColumnMeta to empty array, 
+				// (we know there ar non, so reflection can be skipped for this one)
+				codeBlock.add(".withAnnotations()");
+				
 
-			addField(cp, PUBLIC().STATIC().FINAL(), parametrized(BaseColumnMeta.class, rawType.box()), prop.fieldName, new FieldCustomizer() {
+				// CASE: Generated (no reflection)
+				// - comment line above 
+				// - make sure "annotations" field in BaseColumnMeta is initialised to: new Annotation[0]
+				
+			}else if(prop.annotations.size() > 0) {
+				// CASE: Generated (no reflection)
+				// - uncomment all lines in this block
+
+//				codeBlock.add(".withAnnotations(");
+//				int i=0;
+//				codeBlock.indent();
+//				codeBlock.indent();
+//				for(AnnotationSpec spec: prop.annotations) {
+//					if(i>0) codeBlock.add(", ");
+//					
+//					codeBlock.add("\nannotation($T.class", spec.type);
+//					int j=0;
+//					for(Entry<String, List<CodeBlock>> elem:spec.members.entrySet()) {
+//						codeBlock.add(", ");
+//						
+//						codeBlock.add("$S,",elem.getKey());
+//						if(elem.getValue().size() == 1) {
+//							codeBlock.add(elem.getValue().get(0));							
+//						}else {
+//							codeBlock.add("new Object[]{");
+//							for(int k=0; k<elem.getValue().size(); k++) {
+//								if(k>0) codeBlock.add(", ");
+//								codeBlock.add(elem.getValue().get(k));
+//							}
+//							codeBlock.add("}");
+//						}
+//						j++;
+//					}
+//					codeBlock.add(")");
+//					i++;
+//				}
+//				codeBlock.add(")");				
+//				codeBlock.unindent();
+//				codeBlock.unindent();
+
+			}
+
+			addField(cp, PUBLIC().STATIC().FINAL(), parametrized(columnMetaBase, rawType.box()), prop.fieldName, new FieldCustomizer() {
 				@Override
 				public void customize(Builder arg0) {
 					arg0.initializer(codeBlock.build());

@@ -7,6 +7,7 @@ import com.squareup.javapoet.*;
 
 import hr.hrg.hipster.dao.*;
 import hr.hrg.hipster.dao.change.*;
+import hr.hrg.hipster.sql.*;
 
 public class GenBuilder {
 
@@ -40,6 +41,7 @@ public class GenBuilder {
         	
 			MethodSpec.Builder g = methodBuilder(PUBLIC(), prop.type, prop.getterName).addAnnotation(Override.class);
 			g.addCode("return "+prop.fieldName+";\n");
+			GenImmutable.copyAnnotations(g, prop);
 			builder.addMethod(g.build());
 
 			MethodSpec.Builder bm = methodBuilder(PUBLIC(), prop.type, prop.name).addAnnotation(Override.class);
@@ -61,7 +63,8 @@ public class GenBuilder {
 	}
 
 	public static void addInterfaces(EntityDef def, TypeSpec.Builder builder, boolean jackson, ClassName columnMetaBase) {
-		builder.addSuperinterface(parametrized(IUpdatable.class, columnMetaBase));
+		// builder.addSuperinterface(parametrized(IEnumGetter.class, columnMetaBase));
+		builder.addSuperinterface(parametrized(IUpdatable.class, columnMetaBase)); // includes IEnumGetter (IUpdatable extends it)  
 	}	
 	
 	public static void genConstructors(EntityDef def, TypeSpec.Builder builder, boolean jackson){

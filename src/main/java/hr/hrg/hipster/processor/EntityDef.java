@@ -3,9 +3,11 @@ package hr.hrg.hipster.processor;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.processing.*;
 import javax.lang.model.element.*;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.*;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
@@ -34,7 +36,7 @@ public class EntityDef {
 	public final boolean genMeta;
 	public final boolean genUpdate;
 	
-	public EntityDef(TypeElement clazz){
+	public EntityDef(TypeElement clazz, Elements elements){
 		isInterface = clazz.getKind().isInterface();
 		this.declaredType = (DeclaredType) clazz.asType();
 
@@ -63,8 +65,8 @@ public class EntityDef {
 		
 	}
 		
-	public Property addProp(String name, TypeName typeName, TypeMirror typeMirror, ExecutableElement method){
-		Property property = new Property(name, typeName, method, this.tableName);
+	public Property addProp(String name, TypeName typeName, TypeMirror typeMirror, ExecutableElement method, ProcessingEnvironment processingEnv){
+		Property property = new Property(name, typeName, method, this.tableName, processingEnv);
 		props.add(property);
 		return property;
 	}
