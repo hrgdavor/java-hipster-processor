@@ -150,7 +150,7 @@ public class GenMeta {
 
 		MethodSpec.Builder constr = constructorBuilder(PUBLIC());
 		addParameter(constr, TypeSource.class, "_typeSource");
-		constr.addCode("super(ordinal, TABLE_NAME, COLUMN_COUNT);\n");
+		constr.addCode("super(ordinal, TABLE_NAME, TABLE, COLUMN_ARRAY, COLUMN_ARRAY_SORTED_STR, COLUMN_ARRAY_SORTED);\n");
 		addSetterParameter(constr, ordinalField, null);
 		int i=0;
 		
@@ -266,20 +266,20 @@ public class GenMeta {
 		});			
 		//@Override
 		//public final SampleEnum getColumn(String name){ return SamleEnum.valueOf(name); }
-		addMethod(cp,PUBLIC().FINAL(), columnMetaBase, "getColumn", method->{
-			method.addParameter(String.class, "columnName");
-			method.addAnnotation(Override.class);
-			method.addCode("int pos = $T.binarySearch(COLUMN_ARRAY_SORTED_STR, columnName);\n",Arrays.class);
-			method.addCode("return pos < 0 ? null: COLUMN_ARRAY_SORTED[pos];\n");
-		});
+//		addMethod(cp,PUBLIC().FINAL(), columnMetaBase, "getColumn", method->{
+//			method.addParameter(String.class, "columnName");
+//			method.addAnnotation(Override.class);
+//			method.addCode("int pos = $T.binarySearch(COLUMN_ARRAY_SORTED_STR, columnName);\n",Arrays.class);
+//			method.addCode("return pos < 0 ? null: COLUMN_ARRAY_SORTED[pos];\n");
+//		});
 		
 		//@Override
 		//public final SampleEnum getColumn(String name){ return COLUMN_ARRAY[ordinal]; }
-		addMethod(cp,PUBLIC().FINAL(), columnMetaBase, "getColumn", method->{
-			method.addParameter(int.class, "ordinal");
-			method.addAnnotation(Override.class);
-			method.addCode("return COLUMN_ARRAY[ordinal];\n");
-		});	
+//		addMethod(cp,PUBLIC().FINAL(), columnMetaBase, "getColumn", method->{
+//			method.addParameter(int.class, "ordinal");
+//			method.addAnnotation(Override.class);
+//			method.addCode("return COLUMN_ARRAY[ordinal];\n");
+//		});	
 		
 		if(primaryProp == null){
 			//@Override

@@ -30,7 +30,7 @@ import hr.hrg.hipster.dao.*;
 import hr.hrg.hipster.sql.*;
 
 @SupportedAnnotationTypes("hr.hrg.hipster.dao.HipsterEntity")
-@SupportedOptions({"hipster_proc_jackson","hipster_proc_builder"})
+@SupportedOptions({"hipster_proc_jackson","hipster_proc_builder", "hipster_proc_column_meta_class"})
 public class HipsterDaoProcessor extends AbstractProcessor{
 
     @Override
