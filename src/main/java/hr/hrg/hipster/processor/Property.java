@@ -33,6 +33,7 @@ class Property {
 	public String customTypeKey = "";
 	public ExecutableElement method;
 	public List<AnnotationSpec> annotations = new ArrayList<>();
+	public List<AnnotationSpec> annotationsWithDefaults = new ArrayList<>();
 	public boolean jsonIgnore;
 	
 	public Property(String getter, TypeName type, ExecutableElement method, String tableName, ProcessingEnvironment processingEnv){
@@ -90,8 +91,10 @@ class Property {
 		List<? extends AnnotationMirror> annotationMirrors = method.getAnnotationMirrors();
 		for (AnnotationMirror mirror : annotationMirrors) {
 			AnnotationSpec annotationSpec = getAnnotation(mirror, processingEnv);
-			if(!annotationSpec.type.toString().startsWith("hr.hrg.hipster.sql"))
-				annotations.add(annotationSpec);
+			if(!annotationSpec.type.toString().startsWith("hr.hrg.hipster.sql")) {
+				annotationsWithDefaults.add(annotationSpec);
+				annotations.add(AnnotationSpec.get(mirror));
+			}
 		}
 		
 		
@@ -142,7 +145,7 @@ class Property {
 			String name = executableElement.getSimpleName().toString();
 			AnnotationValue value = map.get(executableElement);
 			if(value != null) {
-				value.accept(visitor, name);				
+				value.accept(visitor, name);
 			}else {
 				System.out.println("NULL VALUE "+annotation.getAnnotationType()+" "+name);
 			}

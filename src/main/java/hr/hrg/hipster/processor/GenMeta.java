@@ -73,7 +73,7 @@ public class GenMeta {
 			}
 			codeBlock.add(")");
 			
-			if(prop.annotations.size() == 0) {
+			if(prop.annotationsWithDefaults.size() == 0) {
 				// CASE: Reflection
 				// force initialisation of "annotations" field in BaseColumnMeta to empty array, 
 				// (we know there ar non, so reflection can be skipped for this one)
@@ -84,7 +84,7 @@ public class GenMeta {
 				// - comment line above 
 				// - make sure "annotations" field in BaseColumnMeta is initialised to: new Annotation[0]
 				
-			}else if(prop.annotations.size() > 0) {
+			}else if(prop.annotationsWithDefaults.size() > 0) {
 				// CASE: Generated (no reflection)
 				// - uncomment all lines in this block
 
@@ -92,7 +92,7 @@ public class GenMeta {
 //				int i=0;
 //				codeBlock.indent();
 //				codeBlock.indent();
-//				for(AnnotationSpec spec: prop.annotations) {
+//				for(AnnotationSpec spec: prop.annotationsWithDefaults) {
 //					if(i>0) codeBlock.add(", ");
 //					
 //					codeBlock.add("\nannotation($T.class", spec.type);
