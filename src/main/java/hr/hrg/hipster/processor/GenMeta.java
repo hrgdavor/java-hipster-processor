@@ -1,19 +1,15 @@
 package hr.hrg.hipster.processor;
 
-import static com.squareup.javapoet.TypeSpec.anonymousClassBuilder;
 import static hr.hrg.hipster.processor.HipsterProcessorUtil.*;
 import static hr.hrg.javapoet.PoetUtil.*;
 
 import java.sql.*;
 import java.util.*;
-import java.util.Map.*;
 
 import com.squareup.javapoet.*;
 import com.squareup.javapoet.FieldSpec.*;
 
-import hr.hrg.hipster.*;
 import hr.hrg.hipster.dao.*;
-import hr.hrg.hipster.dao.change.*;
 import hr.hrg.hipster.sql.*;
 import hr.hrg.javapoet.*;
 
