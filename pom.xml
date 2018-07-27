@@ -2,16 +2,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>hipster-processor</artifactId>
 	<packaging>jar</packaging>
 
 	<name>hipster-processor</name>
 
-	<parent>
-		<groupId>hr.hrg</groupId>
-		<artifactId>hipster-sql-all</artifactId>
-		<version>0.3.0-SNAPSHOT</version>
-	</parent>
+	<groupId>hr.hrg</groupId>
+	<artifactId>hipster-processor</artifactId>
+	<version>0.3.0-SNAPSHOT</version>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
