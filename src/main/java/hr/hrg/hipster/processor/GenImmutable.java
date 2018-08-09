@@ -37,7 +37,7 @@ public class GenImmutable {
         int count = def.getProps().size();
         for(int i=0; i<count; i++) {
         	Property prop = def.getProps().get(i);
-			addField(builder, PRIVATE().FINAL(), prop.type, prop.name);
+			addField(builder, PRIVATE(), prop.type, prop.name);
         	
 			MethodSpec.Builder g = methodBuilder(PUBLIC(), prop.type, prop.getterName).addAnnotation(Override.class);
 			copyAnnotations(g, prop);
@@ -48,7 +48,7 @@ public class GenImmutable {
         }
        
         addEnumGetter(def, builder, columnMetaBase);
-        genConstructor(def,builder,jackson, false);
+        genConstructor(def,builder,jackson);
         
 		if(jackson) addDirectSerializer(def,builder);
         
@@ -158,7 +158,7 @@ public class GenImmutable {
 		});
 	}
 
-	public static void genConstructor(EntityDef def, TypeSpec.Builder cp, boolean jackson, boolean mutable){
+	public static void genConstructor(EntityDef def, TypeSpec.Builder cp, boolean jackson){
 
         MethodSpec.Builder constr = constructorBuilder(PUBLIC());
         if(jackson) constr.addAnnotation(CN_JsonCreator);
@@ -166,9 +166,7 @@ public class GenImmutable {
         MethodSpec.Builder constr2 = constructorBuilder(PUBLIC());
         addParameter(constr2,def.type, "v");
         
-        if(mutable){
-            constr2.addCode("if(v == null) return;\n");
-        }
+        constr2.addCode("if(v == null) return;\n");
         
         int count = def.getProps().size();
         for(int i=0; i<count; i++) {

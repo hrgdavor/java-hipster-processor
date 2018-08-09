@@ -71,7 +71,7 @@ public class GenBuilder {
         // empty default constructor
 		addconstructor(builder, null);
 
-        GenImmutable.genConstructor(def,builder,jackson, true);
+        GenImmutable.genConstructor(def,builder,jackson);
 	}
 
 	
