@@ -76,7 +76,12 @@ public class HipsterDaoProcessor extends AbstractProcessor{
         		TypeName typeName = TypeName.get(method.getReturnType());
 
         		String typeNameStr = typeName.toString();
-        		if(!name.startsWith("get") && (!name.startsWith("is") && (typeNameStr == "boolean" || typeNameStr == "java.lang.Boolean")) ) continue;
+
+        		// check if needs to be skipped
+        		boolean skip = !name.startsWith("get") && (!name.startsWith("is") && (typeNameStr == "boolean" || typeNameStr == "java.lang.Boolean"));
+        		if(skip) continue;
+        		HipsterColumn hipsterColumn = element.getAnnotation(HipsterColumn.class);
+        		if(hipsterColumn != null && hipsterColumn.skip()) continue;
 
         		Property prop = def.addProp(name, typeName, method.getReturnType(), method, processingEnv);
         		
