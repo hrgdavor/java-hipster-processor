@@ -312,7 +312,7 @@ public class GenMeta {
 			return "getDouble";
 			
 		}else if(isType(p, "float","java.lang.Float")){
-			return "getDouble";
+			return "getFloat";
 
 		}else if(isType(p, "java.lang.String")){
 			return "getString";
