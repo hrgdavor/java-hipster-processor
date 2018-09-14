@@ -208,7 +208,7 @@ public class GenMeta {
 		}else{
 			//@Override
 			//public final IUpdatable<BaseColumnMeta> mutableCopy(Sample v){ throw new RuntimeExcep(v); }
-			addMethod(cp,PUBLIC().FINAL(), parametrized(IUpdatable.class, columnMetaBase), "mutableCopy", method->{
+			addMethod(cp,PUBLIC().FINAL(), IUpdatable.class, "mutableCopy", method->{
 				method.addAnnotation(Override.class);
 				addParameter(method, Object.class, "v");
 				method.addCode("throw new $T($S);\n", RuntimeException.class,"can not be implemented without updater");

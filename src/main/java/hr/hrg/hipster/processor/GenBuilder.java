@@ -64,7 +64,7 @@ public class GenBuilder {
 
 	public static void addInterfaces(EntityDef def, TypeSpec.Builder builder, boolean jackson, ClassName columnMetaBase) {
 		// builder.addSuperinterface(parametrized(IEnumGetter.class, columnMetaBase));
-		builder.addSuperinterface(parametrized(IUpdatable.class, columnMetaBase)); // includes IEnumGetter (IUpdatable extends it)  
+		builder.addSuperinterface(IUpdatable.class); // includes IEnumGetter (IUpdatable extends it)  
 	}	
 	
 	public static void genConstructors(EntityDef def, TypeSpec.Builder builder, boolean jackson){
@@ -76,11 +76,14 @@ public class GenBuilder {
 
 	
 	public static MethodSpec.Builder genEnumSetter(EntityDef def, TypeSpec.Builder cp, ClassName columnMetaBase){
+		TypeVariableName typeT = TypeVariableName.get("T");
+		ParameterizedTypeName typeKEy = parametrized(Key.class, typeT);
 
         MethodSpec.Builder setValue = methodBuilder(PUBLIC(), void.class, "setValue");
         setValue.addAnnotation(Override.class);
-        setValue.addParameter(columnMetaBase, "column");
-        setValue.addParameter(Object.class, "value");
+        setValue.addTypeVariable(typeT);
+        setValue.addParameter(typeKEy, "column");
+        setValue.addParameter(typeT, "value");
         setValue.addCode("this.setValue(column.ordinal(), value);\n");
 		cp.addMethod(setValue.build());
 		

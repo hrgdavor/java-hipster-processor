@@ -7,6 +7,7 @@ import static hr.hrg.javapoet.PoetUtil.*;
 import com.squareup.javapoet.*;
 
 import hr.hrg.hipster.dao.*;
+import hr.hrg.hipster.sql.*;
 
 public class GenUpdate {
 
@@ -55,7 +56,7 @@ public class GenUpdate {
         }
         
         MethodSpec.Builder setValue = null;
-        if(genBuilder){        
+        if(genBuilder){
 			setValue = methodBuilder(PUBLIC(), void.class, "setValue" );
 	        setValue.addAnnotation(Override.class);
 	        addParameter(setValue,int.class, "ordinal");
@@ -73,8 +74,11 @@ public class GenUpdate {
         cp.addMethod(setValue.build());
 
 
-        // *********************  IUpdateDelta
+        // *********************  IUpdatatable
         
+        TypeVariableName typeT = TypeVariableName.get("T");
+		ParameterizedTypeName typeKey = parametrized(Key.class, typeT);
+		
         addMethod(cp, PUBLIC(), boolean.class, "isEmpty", method -> {
         	method.addAnnotation(Override.class);
         	method.addCode("return _changeSet == 0;\n");
@@ -82,7 +86,8 @@ public class GenUpdate {
         
         addMethod(cp, PUBLIC(), boolean.class, "isChanged", method -> {
         	method.addAnnotation(Override.class);
-        	addParameter(method, columnMetaBase, "column");
+        	method.addTypeVariable(typeT);
+        	addParameter(method, typeKey, "column");
         	method.addCode("return (_changeSet & (1L << column.ordinal())) != 0;\n");
         });
         
@@ -90,6 +95,32 @@ public class GenUpdate {
 			method.addAnnotation(Override.class);
 			addParameter(method, int.class, "ordinal");
 			method.addCode("return (_changeSet & (1L << ordinal)) != 0;\n");
+		});
+
+
+        addMethod(cp, PUBLIC(), void.class, "setChanged", method -> {
+			method.addAnnotation(Override.class);
+        	method.addTypeVariable(typeT);
+			addParameter(method, typeKey, "column");
+			addParameter(method, boolean.class, "changed");
+			method.addCode("setChanged(column.ordinal(), changed);\n");
+		});
+        
+        addMethod(cp, PUBLIC(), void.class, "setChanged", method -> {
+			method.addAnnotation(Override.class);
+			addParameter(method, int.class, "ordinal");
+			addParameter(method, boolean.class, "changed");
+			method.addCode("if(changed) {\n");
+			method.addCode("    this._changeSet |= (1L<<ordinal);\n");
+			method.addCode("}else{\n");
+			method.addCode("    this._changeSet &= ~(1L<<ordinal);\n");
+			method.addCode("}\n");
+		});
+
+        addMethod(cp, PUBLIC(), void.class, "setChanged", method -> {
+			method.addAnnotation(Override.class);
+			addParameter(method, boolean.class, "changed");
+			method.addCode("_changeSet = changed ? "+((1<<def.props.size())-1)+":0;\n");
 		});
         
         return cp;

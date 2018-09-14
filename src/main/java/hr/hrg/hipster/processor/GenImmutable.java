@@ -32,7 +32,7 @@ public class GenImmutable {
 		}else{
 			builder.superclass(def.type);						
 		}
-		builder.addSuperinterface(parametrized(IEnumGetter.class, columnMetaBase));		
+		builder.addSuperinterface(IEnumGetter.class);		
 
         int count = def.getProps().size();
         for(int i=0; i<count; i++) {
@@ -133,12 +133,16 @@ public class GenImmutable {
 	}
 	public static void addEnumGetter(EntityDef def, TypeSpec.Builder cp,ClassName columnMetaBase){
 
+		TypeVariableName typeT = TypeVariableName.get("T");
+		TypeVariableName typeE = TypeVariableName.get("E", parametrized(Key.class, typeT));
 		
-		addMethod(cp, Object.class, "getValue", method -> {		
+		addMethod(cp, typeT, "getValue", method -> {
+			method.addTypeVariable(typeT);
+			method.addTypeVariable(typeE);
 			PUBLIC().FINAL().to(method);
 	        method.addAnnotation(Override.class);
-	        addParameter(method, columnMetaBase	, "column");
-	        method.addCode("return this.getValue(column.ordinal());\n");
+	        addParameter(method, typeE	, "column");
+	        method.addCode("return ($T)this.getValue(column.ordinal());\n", typeT);
 		});
 		
 		addMethod(cp, Object.class, "getValue", method -> {
