@@ -56,6 +56,7 @@ public class GenBuilder {
         code.add("\t);");
 		
         GenImmutable.addEnumGetter(def, builder,columnMetaBase);
+        GenImmutable.addEquals(def, builder);
         builder.addMethod(genEnumSetter(def, builder, columnMetaBase).build());
         if(jackson) GenImmutable.addDirectSerializer(def,builder);
         

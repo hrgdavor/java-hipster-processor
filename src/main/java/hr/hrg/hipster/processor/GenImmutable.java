@@ -48,6 +48,7 @@ public class GenImmutable {
         }
        
         addEnumGetter(def, builder, columnMetaBase);
+        addEquals(def, builder);
         genConstructor(def,builder,jackson);
         
 		if(jackson) addDirectSerializer(def,builder);
@@ -130,6 +131,19 @@ public class GenImmutable {
 			method.addCode("else\n");
 			method.addCode("\tjgen.$L($L);\n",jgenMethod,prop);
 		}
+	}
+
+	public static void addEquals(EntityDef def, TypeSpec.Builder cp){
+		Property primaryProp = def.getPrimaryProp();
+		if(primaryProp == null) return;
+		
+		addMethod(cp, PUBLIC(), boolean.class, "equals", method -> {
+			method.addAnnotation(Override.class);
+			addParameter(method, Object.class, "o");
+			method.addCode("if(o == null || !(o instanceof $T)) return false;\n", def.type);
+			method.addCode("return $L.equals((($T)o).$L());\n", primaryProp.name, def.type, primaryProp.getterName);
+		});
+		
 	}
 	public static void addEnumGetter(EntityDef def, TypeSpec.Builder cp,ClassName columnMetaBase){
 

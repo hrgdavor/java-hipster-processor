@@ -67,6 +67,7 @@ public class GenUpdate {
         	setValue = GenBuilder.genEnumSetter(def, cp,columnMetaBase);
         	GenBuilder.genConstructors(def, cp, jackson);
             GenImmutable.addEnumGetter(def, cp,columnMetaBase);
+            GenImmutable.addEquals(def, cp);
             if(jackson) GenImmutable.addDirectSerializer(def,cp);
             
         }
