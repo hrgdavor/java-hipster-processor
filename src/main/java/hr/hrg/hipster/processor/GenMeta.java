@@ -150,35 +150,39 @@ public class GenMeta {
 		addSetterParameter(constr, ordinalField, null);
 		int i=0;
 		
-		CodeBlock.Builder gettersBlock = CodeBlock.builder().indent();
+		CodeBlock.Builder typeHandlersBlock = CodeBlock.builder();
+		typeHandlersBlock.add("if(_typeSource != null){\n");
+		typeHandlersBlock.indent();
 		boolean hasGetters = false;
 		
 		for(Property p:def.getProps()) {
 			ParameterizedTypeName parametrizedCustomType = parametrized(ICustomType.class, p.type.box());
 			if(p.customType != null) {
-				gettersBlock.add("_typeHandler["+i+"] = ($T) _typeSource.getInstanceRequired($T.class);\n", parametrizedCustomType, p.customType);				
+				typeHandlersBlock.add("_typeHandler["+i+"] = ($T) _typeSource.getInstanceRequired($T.class);\n", parametrizedCustomType, p.customType);				
 			}else if(!p.customTypeKey.isEmpty()){
-				gettersBlock.add("_typeHandler["+i+"] = ($T) _typeSource.getNamedRequired($S);\n", parametrizedCustomType, p.customTypeKey);
+				typeHandlersBlock.add("_typeHandler["+i+"] = ($T) _typeSource.getNamedRequired($S);\n", parametrizedCustomType, p.customTypeKey);
 			}else {				
-				gettersBlock.add("_typeHandler["+i+"] = ($T) _typeSource.getForRequired(", parametrizedCustomType);
+				typeHandlersBlock.add("_typeHandler["+i+"] = ($T) _typeSource.getForRequired(", parametrizedCustomType);
 				hasGetters = true;
 				if(p.type instanceof ParameterizedTypeName){
 					ParameterizedTypeName parameterizedTypeName = (ParameterizedTypeName)p.type;
-					gettersBlock.add("$T.class",parameterizedTypeName.rawType);
+					typeHandlersBlock.add("$T.class",parameterizedTypeName.rawType);
 					for(TypeName ta: parameterizedTypeName.typeArguments){
-						gettersBlock.add(",$T.class",ta);					
+						typeHandlersBlock.add(",$T.class",ta);					
 					}
-					gettersBlock.add(");\n");
+					typeHandlersBlock.add(");\n");
 				}else{
-					gettersBlock.add("$T.class);\n", p.type.box());
+					typeHandlersBlock.add("$T.class);\n", p.type.box());
 				}
 			}
 			
 			i++;
 		}
-		gettersBlock.unindent();
 		
-		constr.addCode(gettersBlock.build());
+		typeHandlersBlock.add("}\n");
+		typeHandlersBlock.unindent();
+		
+		constr.addCode(typeHandlersBlock.build());
 		
 //		addconstructor(cp, PUBLIC(), method-> {
 //			method.addParameter(HipsterSql.class, "hipster");
